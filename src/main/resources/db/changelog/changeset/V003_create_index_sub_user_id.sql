@@ -1,0 +1,1 @@
+CREATE INDEX idx_sub_user_id ON subscriptions(user_id);

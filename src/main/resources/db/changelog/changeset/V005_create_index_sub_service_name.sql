@@ -1,0 +1,1 @@
+CREATE INDEX idx_sub_service_name ON subscriptions(service_name);

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changeset/V001_create_tables_users.sql
+  - include:
+      file: db/changelog/changeset/V002_create_table_subscriptions.sql
+  - include:
+      file: db/changelog/changeset/V003_create_index_sub_user_id.sql
+  - include:
+      file: db/changelog/changeset/V004_create_index_sub_status.sql
+  - include:
+      file: db/changelog/changeset/V005_create_index_sub_service_name.sql
