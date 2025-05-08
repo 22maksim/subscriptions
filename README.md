@@ -10,7 +10,7 @@
 
 # Клонировать репозиторий
 ```text
-git clone http:
+git clone https://github.com/22maksim/subscriptions.git
 ```
 
 # Запуск и сборка
