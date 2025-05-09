@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponseDto createUser(UserRequestDto requestDto) {
         if (userRepository.existsByEmail(requestDto.getEmail())) {
+            log.warn("User with email {} already exists", requestDto.getEmail());
             throw new EntityExistsException("Email already in use");
         }
 
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
         customUser.setUsername(requestDto.getUsername());
         customUser.setEmail(requestDto.getEmail());
 
+        log.info("Creating new user with email {}", requestDto.getEmail());
         return CustomUserMapper.userToUserResponseDto(userRepository.save(customUser));
     }
 
@@ -51,6 +53,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new CustomUserNotFoundException("User Not Found"));
         customUser.setUsername(requestDto.getUsername());
 
+        log.info("Updating user with id {}", id);
         return CustomUserMapper.userToUserResponseDto(userRepository.save(customUser));
     }
 
@@ -65,6 +68,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUserById(long id) {
         userRepository.deleteById(id);
+        log.info("Deleting user with id {}", id);
     }
 
     @Override
@@ -77,6 +81,7 @@ public class UserServiceImpl implements UserService {
                 .map(Subscription::getServiceName)
                 .anyMatch(sub -> sub.equals(requestDto.getService_name()))
         ) {
+            log.warn("Subscription with name {} already exists", requestDto.getService_name());
             throw new EntityExistsException("Subscription already exists");
         }
 
@@ -86,6 +91,7 @@ public class UserServiceImpl implements UserService {
         subscription = subscriptionRepository.save(subscription);
         customUser.getSubscriptions().add(subscription);
 
+        log.info("Adding subscription from user with id {}", id);
         return CustomUserMapper.userToUserResponseDto(userRepository.save(customUser));
     }
 
@@ -93,11 +99,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public Page<SubscriptionResponseDto> getSubscriptionsByUserId(long id, int page, int size) {
         if (!userRepository.existsById(id)) {
+            log.warn("User with id {} does not exist", id);
             throw new CustomUserNotFoundException("User Not Found");
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("startDate").descending());
 
+        log.info("Retrieving subscriptions from user with id {}", id);
         return subscriptionRepository.findByUserId(id, pageable)
                 .map(SubscriptionMapper::toDto);
     }
@@ -109,6 +117,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new CustomUserNotFoundException("User Not Found"));
 
         if (user.getSubscriptions().isEmpty()) {
+            log.warn("User doesn't have any subscriptions");
             throw new IllegalArgumentException("User does not have subscriptions");
         }
 
@@ -117,6 +126,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
+        log.info("Deleting subscriptions from user with id {}", id);
         return user.getSubscriptions().stream()
                 .filter(Objects::nonNull)
                 .map(SubscriptionMapper::toDto)
